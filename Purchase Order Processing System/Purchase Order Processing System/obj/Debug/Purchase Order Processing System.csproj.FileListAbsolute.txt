@@ -1,0 +1,11 @@
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\bin\Purchase Order Processing System.dll.config
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\bin\Purchase Order Processing System.dll
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\bin\Purchase Order Processing System.pdb
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\bin\EntityFramework.dll
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\bin\EntityFramework.SqlServer.dll
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\bin\EntityFramework.xml
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\bin\EntityFramework.SqlServer.xml
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\obj\Debug\Purchase Order Processing System.csprojResolveAssemblyReference.cache
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\obj\Debug\Purchase Order Processing System.csproj.CoreCompileInputs.cache
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\obj\Debug\Purchase Order Processing System.dll
+C:\Users\rajar\source\repos\Purchase Order Processing System\Purchase Order Processing System\obj\Debug\Purchase Order Processing System.pdb
