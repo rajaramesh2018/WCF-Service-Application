@@ -1,0 +1,289 @@
+--1 Create the tables Customers and Orders
+
+CREATE TABLE Customers(
+   Customerid char(5) NOT NULL,
+   CompanyName VARCHAR (40) NOT NULL,
+   contactName char(30) NULL,
+   Address varchar(60) NULL,
+   City char(15) NULL,
+   Phone char(24) NULL,
+   Fax char(24) NULL
+);
+
+CREATE TABLE Orders(
+   Orderid int NOT NULL,
+   customerID char(5) NOT NULL,
+   Orderdate datetime NULL,
+   Shippeddate datetime NULL,
+   Freight money NULL,
+   Shipname varchar(40) NULL,
+   Shipaddress varchar(60) NULL,
+   Quantity int NULL
+);
+
+--2. Using the ALTER TABLE add a new column named shipregion
+
+ALTER TABLE Orders
+ADD shipregion int null;
+
+--3.Using the ALTER TABLE statement change the data type of the column shipregion from --INTEGER to CHARACTER 
+ALTER TABLE Orders
+ALTER COLUMN shipregion char(8) null;
+
+--4.Delete the formerly created column shipregion.
+ALTER TABLE Orders
+DROP COLUMN shipregion;
+
+--5.Using the ALTER TABLE, add the current system date and time as the default value to the 
+--orderdate
+ALTER TABLE Orders ADD CONSTRAINT DF_Orders_Orderdate DEFAULT GETDATE() FOR Orderdate
+
+--6.Rename the city column of the Customers to Town
+EXEC sp_rename 'Customers.City', 'Town', 'COLUMN'
+
+--7.Create Tables and insert the shown data 
+
+CREATE TABLE Department (
+    Dep_ID varchar(10),
+    Dep_Name varchar(50),
+    Location varchar(100),
+    PRIMARY KEY (Dep_ID)
+)
+CREATE TABLE Employee (
+    emp_no int,
+    emp_fna varchar(100),
+    emp_lna varchar(100),
+    Dep_ID varchar(10) FOREIGN KEY REFERENCES Department(Dep_ID),
+    PRIMARY KEY (emp_no)
+)
+
+CREATE TABLE Project (
+    project_no varchar(10),
+    project_name varchar(50),
+    budget int,
+    PRIMARY KEY (project_no)
+)
+CREATE TABLE Works_on (
+    emp_no int,
+    project_no varchar(10),
+    job varchar(50) NULL,
+    enter_date datetime,
+    PRIMARY KEY (emp_no,project_no)
+)
+
+INSERT INTO Department values
+('d1','Res','Dallas')
+INSERT INTO Department values
+('d2','Acc','Seattle')
+INSERT INTO Department values
+('d3','Mar','Dallas')
+
+INSERT INTO EMPLOYEE VALUES 
+(25348,'Matthew','Smith','d3')
+INSERT INTO EMPLOYEE VALUES 
+(10102,'Ann','Jones','d3')
+INSERT INTO EMPLOYEE VALUES 
+(18316,'John','Barrimore','d1')
+INSERT INTO EMPLOYEE VALUES 
+(29346,'James','James','d2')
+
+INSERT INTO Project values
+('p1','Apollo',120000)
+INSERT INTO Project values
+('p2','Gemini',95000)
+INSERT INTO Project values
+('p3','Mercury',18560)
+
+INSERT INTO Works_on values
+(10102,'p1','Analyst','1997.10.1')
+INSERT INTO Works_on values
+(10102,'p3','manager','1999.1.1')
+INSERT INTO Works_on values
+(25348,'p2','Clerk','1998.2.15')
+INSERT INTO Works_on values
+(18316,'p2',NULL,'1998.6.1')
+INSERT INTO Works_on values
+(29346,'p2',NULL,'1997.12.15')
+INSERT INTO Works_on values
+(2581,'p3','Analyst','1998.10.15')
+INSERT INTO Works_on values
+(9031,'p1','Manager','1980.4.15')
+INSERT INTO Works_on values
+(28559,'p1',NULL,'1980.8.1')
+INSERT INTO Works_on values
+(28559,'p2','Clerk','1992.2.1')
+INSERT INTO Works_on values
+(9031,'p3','Clerk','1997.11.15')
+INSERT INTO Works_on values
+(29346,'p1','Clerk','1998.1.4')
+
+
+--Simple Queries
+--1
+SELECT EMP_NO FROM EMPLOYEE WHERE EMP_NO < 10000 AND EMP_NO IN
+(SELECT EMP_NO FROM WORKS_ON WHERE PROJECT_NO = 'p2')
+--2
+SELECT DISTINCT EMP_NO FROM WORKS_ON WHERE YEAR(ENTER_DATE)<>1998
+--3
+SELECT EMP_NO FROM WORKS_ON WHERE PROJECT_NO = 'p1' AND JOB IN ('Analyst','Manager')
+--4
+SELECT ENTER_DATE FROM WORKS_ON WHERE JOB IS NULL AND PROJECT_NO = 'p2'
+--5
+SELECT EMP_NO,EMP_LNA FROM EMPLOYEE WHERE EMP_FNA LIKE ('%tt%')
+--6
+SELECT EMP_NO,EMP_FNA FROM EMPLOYEE WHERE (SUBSTRING(EMP_LNA,2,1) = 'o' OR SUBSTRING(EMP_LNA,2,1) = 'a')
+AND SUBSTRING(EMP_LNA,LEN(EMP_LNA)-1,2) = 'es'
+--7
+SELECT E.EMP_NO FROM EMPLOYEE E INNER JOIN DEPARTMENT D ON E.DEP_ID = D.DEP_ID
+AND D.LOCATION = 'Seattle'
+--8
+SELECT E.EMP_FNA,E.EMP_LNA FROM EMPLOYEE E INNER JOIN WORKS_ON W ON
+E.EMP_NO = W.EMP_NO AND CONVERT(varchar, W.ENTER_DATE, 23) = '1998-01-04'
+--9
+SELECT LOCATION FROM DEPARTMENT GROUP BY LOCATION
+--10
+SELECT MAX(EMP_NO) AS BIGGESTEMPLOYEENO FROM EMPLOYEE
+go
+
+--Indexes
+--1
+CREATE NONCLUSTERED INDEX IX_WorksOn_EnterDate   
+    ON Works_on(enter_date)
+ALTER INDEX IX_WorksOn_EnterDate ON Works_on
+REBUILD WITH (FILLFACTOR = 60); 
+
+--2
+CREATE UNIQUE INDEX IX_Employee_FNA_LNA
+on Employee (emp_fna, emp_lna);   
+
+--Views
+--1
+CREATE VIEW Emp_d1 AS
+SELECT emp_no,emp_fna,emp_lna,Dep_ID
+FROM Employee
+WHERE Dep_ID = 'd1'
+GO
+
+--2
+CREATE VIEW Project_No_Name AS
+SELECT project_no,project_name
+FROM Project
+GO
+
+--3
+CREATE VIEW Emp_Proj_1988_2 AS
+SELECT e.emp_fna,e.emp_lna from Employee e inner join 
+Works_on w on e.emp_no = w.emp_no and enter_date > '1988-06-30'
+and year(enter_date)=1988
+GO
+
+--Constraints
+
+
+--1
+CREATE TABLE Customers(
+   Customerid char(5) NOT NULL,
+   CompanyName VARCHAR (40) NOT NULL,
+   contactName char(30) NULL,
+   Address varchar(60) NULL,
+   City char(15) NULL,
+   Phone char(24) NULL,
+   Fax char(24) NULL,
+    PRIMARY KEY (Customerid)
+);
+
+CREATE TABLE Orders(
+   Orderid int NOT NULL,
+   customerID char(5) NOT NULL FOREIGN KEY REFERENCES Customers(Customerid),
+   Orderdate datetime NULL,
+   Shippeddate datetime NULL,
+   Freight money NULL,
+   Shipname varchar(40) NULL,
+   Shipaddress varchar(60) NULL,
+   Quantity int NULL,
+    PRIMARY KEY (Orderid)
+);
+
+--2
+ALTER TABLE Orders ADD CONSTRAINT CHK_Quantity CHECK (Quantity>0 and Quantity<=30)
+go
+--3
+
+CREATE RULE WesternCountries_Rule  
+AS   
+@WesternCountries IN ('CA', 'WA', 'OR', 'NM')
+go
+CREATE TYPE WesternCountries  
+FROM varchar(2) NOT NULL
+go
+sp_bindrule WesternCountries_Rule,'WesternCountries'  
+go
+
+CREATE DEFAULT WesternCountries_dflt AS 'CA'
+go
+
+sp_bindefault 'WesternCountries_dflt', 'WesternCountries'; 
+
+
+CREATE TABLE Regions(
+   City WesternCountries not NULL,
+   Country varchar(3),
+);
+
+--4
+SELECT * FROM INFORMATION_SCHEMA.CONSTRAINT_COLUMN_USAGE
+WHERE TABLE_NAME='Orders';
+
+--5
+ALTER TABLE Customers
+DROP CONSTRAINT PK_Customers;
+--The constraint 'PK_Customers' is being referenced by table 'Orders', foreign key --constraint 'FK__Orders__customer__27741994'
+
+--6
+Alter table Orders DROP CONSTRAINT CHK_Quantity;
+
+--Functions & Procedures
+IF OBJECT_ID (N'dbo.ufnGetAge', N'FN') IS NOT NULL  
+    DROP FUNCTION ufnGetAge;  
+GO  
+CREATE FUNCTION dbo.ufnGetAge(@DOB datetime)  
+RETURNS int   
+AS     
+BEGIN  
+    DECLARE @ret int;  
+    SELECT @ret = DATEDIFF(year, @DOB, getdate()) + 
+    CASE WHEN (DATEADD(year,DATEDIFF(year, @DOB, getdate()) , @DOB) > getdate()) THEN - 1 ELSE 0 END
+    RETURN @ret;  
+END; 
+go
+
+--2
+CREATE PROCEDURE InsertStudentData 
+@StudentName VARCHAR(100),
+ @DOB datetime
+AS
+BEGIN
+if not exists(select * from sys.tables where name = 'Student')
+begin
+CREATE TABLE Student(
+   SID int NOT NULL,
+   Name VARCHAR(100) NOT NULL,
+   DOB datetime not null,
+    Age int not null,
+    PRIMARY KEY (SID));
+end
+declare @sid int
+declare @age int
+Select @sid = max(sid) + 1 from Student
+if @sid is null
+set @sid = 1
+Select @age = dbo.ufnGetAge(@DOB)
+Insert into Student (SID,Name,DOB,Age) values
+(@sid,@StudentName,@DOB,@age)
+END
+
+
+
+
+
+
